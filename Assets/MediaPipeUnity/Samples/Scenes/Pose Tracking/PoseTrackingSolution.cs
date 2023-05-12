@@ -127,7 +127,7 @@ namespace Mediapipe.Unity.PoseTracking
 	private void OnPoseWorldLandmarksOutput(object stream, OutputEventArgs<LandmarkList> eventArgs)
 	{
 	    //_poseWorldLandmarksAnnotationController.DrawLater(eventArgs.value);
-		//OnPoseWorldLandmarkUpdated?.Invoke(eventArgs.value);
+		OnPoseWorldLandmarkUpdated?.Invoke(eventArgs.value);
 	}
 
 	private void OnSegmentationMaskOutput(object stream, OutputEventArgs<ImageFrame> eventArgs)

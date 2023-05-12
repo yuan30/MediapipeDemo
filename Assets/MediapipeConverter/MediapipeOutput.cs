@@ -43,6 +43,14 @@ public abstract class MediapipeOutput : MonoBehaviour
 	return desiredRotation;
     }
 
+    protected Quaternion GetRotation(Vector3[] positions, int connIndex, Vector3 upwards)
+    {
+	Vector3 connDir = GetVector(positions, connIndex, IsMirror);
+
+	Quaternion desiredRotation = Quaternion.LookRotation(connDir, upwards);
+	return desiredRotation;
+    }
+
     protected Vector3 GetVector(Vector3[] positions, int connectionIndex, bool isMirror = false)
     {
 	(int, int) connection = Connections[connectionIndex];
@@ -54,6 +62,8 @@ public abstract class MediapipeOutput : MonoBehaviour
     {
 	var startPos = positions[index1];
 	var endPos = positions[index2];
+    //Debug.Log("_Test_Leg_vec_" + startPos + ", " + endPos);
+    //return (endPos - startPos).normalized;
 	return isMirror ? (startPos - endPos).normalized : (endPos - startPos).normalized;
     }
 }

@@ -40,6 +40,35 @@ public class LandmarkConverter
 	}
     }
 
+	private LandmarkPoint[] _wpoints;
+    public LandmarkPoint[] WPoints
+    {
+	get
+	{
+	    lock (_lock)
+		return _wpoints;
+	}
+    }
+	private Vector3[] _worldpositions;
+    public Vector3[] WorldPositions
+    {
+	get
+	{
+	    lock (_lock)
+	    {
+		if (_wpoints == null) return null;
+
+		if (_worldpositions == null)
+		    _worldpositions = new Vector3[_wpoints.Length];
+		for (int i = 0; i < _worldpositions.Length; i++)
+		{
+		    _worldpositions[i] = _wpoints[i].position;
+		}
+		return _worldpositions;
+	    }
+	}
+    }
+
     public bool IsMirror { get; set; }
     public int Count => _points.Length;
 
@@ -101,16 +130,16 @@ public class LandmarkConverter
 	if (landmarkList == null || landmarkList.Count <= 0) return;
 	lock (_lock)
 	{
-	    if (_points == null)
-		_points = new LandmarkPoint[landmarkList.Count];
+	    if (_wpoints == null)
+		_wpoints = new LandmarkPoint[landmarkList.Count];
 
-	    for (int i = 0; i < _points.Length; i++)
+	    for (int i = 0; i < _wpoints.Length; i++)
 	    {
-		var point = _points[i];
+		var point = _wpoints[i];
 		var landmark = landmarkList[i];
 		point.position = Convert(landmark);
 		point.visibility = landmark.HasVisibility ? landmark.Visibility : 0;
-		_points[i] = point;
+		_wpoints[i] = point;
 	    }
 	}
     }

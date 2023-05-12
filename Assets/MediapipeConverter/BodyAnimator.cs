@@ -6,6 +6,7 @@ public class BodyAnimator : MonoBehaviour
 {
 	[SerializeField]
     private bool _legDetect_forTesting = false;
+	public bool LegDetect { get { return _legDetect_forTesting; } set { _legDetect_forTesting = value; } }
 
     [SerializeField]
     private Animator _animator;
@@ -32,7 +33,7 @@ public class BodyAnimator : MonoBehaviour
     private float _leftHandDetectedLerpValue;
     private float _rightHandDetectedLerpValue;
 
-	private float _RightThigh, _RightLeg, _LeftThigh, _LeftLeg;
+	private float _RightThigh, _RightLeg, _LeftThigh, _LeftLeg, _Hips;
 
     private IBodyOutput _bodyOutput;
     public IBodyOutput BodyOutput { get => _bodyOutput; set { _bodyOutput = value; } }
@@ -54,7 +55,10 @@ public class BodyAnimator : MonoBehaviour
     private static readonly Quaternion LEFT_FOREARM_IDLE_ROTATION = Quaternion.Euler(0, 0, 10);
     private static readonly Quaternion RIGHT_FOREARM_IDLE_ROTATION = Quaternion.Euler(0, 0, -10);
 
-	private static readonly Quaternion LEG_IDLE_ROTATION = Quaternion.Euler(0, 0, 0);
+	private static readonly Quaternion L_LEG_IDLE_ROTATION = Quaternion.Euler(0, 0, -30); //畫面看上去的左
+	private static readonly Quaternion R_LEG_IDLE_ROTATION = Quaternion.Euler(0, 0, 30); //畫面看上去的右
+
+	private static readonly Quaternion IDLE_ROTATION = Quaternion.Euler(0, 0, 0);
 
     public void Awake()
     {
@@ -77,14 +81,19 @@ public class BodyAnimator : MonoBehaviour
 		//NEW
 		if (_legDetect_forTesting) {
 			_RightThigh = GetLerpValue(_RightThigh, _bodyOutput.RightToesFound);
-			UpdateAnimatorLeg(_bodyOutput, HumanBodyBones.RightUpperLeg, LEG_IDLE_ROTATION, _RightThigh);
+			UpdateAnimatorLeg(_bodyOutput, HumanBodyBones.RightUpperLeg, R_LEG_IDLE_ROTATION, _RightThigh);
 			_RightLeg = GetLerpValue(_RightLeg, _bodyOutput.RightToesFound);
-			UpdateAnimatorLeg(_bodyOutput, HumanBodyBones.RightLowerLeg, LEG_IDLE_ROTATION, _RightLeg);
+			UpdateAnimatorLeg(_bodyOutput, HumanBodyBones.RightLowerLeg, R_LEG_IDLE_ROTATION, _RightLeg);
 			_LeftThigh = GetLerpValue(_LeftThigh, _bodyOutput.LeftToesFound);
-			UpdateAnimatorArm(_bodyOutput, HumanBodyBones.LeftUpperLeg, LEG_IDLE_ROTATION, _LeftThigh);
+			UpdateAnimatorLeg(_bodyOutput, HumanBodyBones.LeftUpperLeg, L_LEG_IDLE_ROTATION, _LeftThigh);
 			_LeftLeg = GetLerpValue(_LeftLeg, _bodyOutput.LeftToesFound);
-			UpdateAnimatorArm(_bodyOutput, HumanBodyBones.LeftLowerLeg, LEG_IDLE_ROTATION, _LeftLeg);
+			UpdateAnimatorLeg(_bodyOutput, HumanBodyBones.LeftLowerLeg, L_LEG_IDLE_ROTATION, _LeftLeg);
 		}
+
+		_Hips = GetLerpValue(_LeftLeg, true);
+		UpdateAnimatorArm(_bodyOutput, HumanBodyBones.Hips, IDLE_ROTATION, _Hips);
+		UpdateAnimatorArm(_bodyOutput, HumanBodyBones.Spine, IDLE_ROTATION, _Hips);
+
 
 	    //UpdateAnimatorBones(_bodyOutput.BodyRotation, _bodyOutput.Space);
 	    if (_bodyOutput.BodyFollowHead)
@@ -188,6 +197,8 @@ public class BodyAnimator : MonoBehaviour
 		Quaternion originHandRot = Quaternion.Inverse(_animator.transform.rotation) * _animator.GetBoneTransform(bone).parent.rotation * idleRotation;
 		Quaternion resultHandRot = Quaternion.Slerp(originHandRot, outputHandRot, detectedLerpValue);
 
+		Debug.Log("_Test_Leg_origin" + originHandRot.eulerAngles);
+		Debug.Log("_Test_Leg_output" + outputHandRot.eulerAngles);
 		UpdateAnimatorBone(bone, resultHandRot, output.Space);
 
 	}
@@ -260,7 +271,7 @@ public class BodyAnimator : MonoBehaviour
 	foreach (var bodyRotation in _bodyOutput.BodyRotation)
 	{
 	    var boneTransform = _animator.GetBoneTransform(bodyRotation.Key);
-	    Gizmos.DrawRay(boneTransform.position, boneTransform.up * 20);
+	    Gizmos.DrawRay(boneTransform.position, boneTransform.up * 1);
 	}
     }
 }
