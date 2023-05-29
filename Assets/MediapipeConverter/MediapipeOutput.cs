@@ -60,10 +60,12 @@ public abstract class MediapipeOutput : MonoBehaviour
 
     protected Vector3 GetVector(Vector3[] positions, int index1, int index2, bool isMirror = false)
     {
-	var startPos = positions[index1];
-	var endPos = positions[index2];
-    //Debug.Log("_Test_Leg_vec_" + startPos + ", " + endPos);
-    //return (endPos - startPos).normalized;
-	return isMirror ? (startPos - endPos).normalized : (endPos - startPos).normalized;
+        var startPos = positions[index1];
+        var endPos = positions[index2];
+        // Debug.Log("_Test_vec_start_point: " + index1 + ", end_point: " + index2);
+        // Debug.Log("_Test_vec_start: " + startPos + ", end: " + endPos + "| mirror is " + isMirror);
+        // Debug.Log("_Test_vec_: " + (endPos - startPos).normalized);
+        return (endPos - startPos).normalized;
+        //return isMirror ? (startPos - endPos).normalized : (endPos - startPos).normalized;
     }
 }

@@ -15,6 +15,7 @@ public interface IBodyOutput : IOutput
     public bool RightHandFound { get; }
     public bool LeftToesFound { get; }
     public bool RightToesFound { get; }
+    public Vector3 Hip2D { get; }
     public Dictionary<HumanBodyBones, Quaternion> BodyRotation { get; }
 }
 
