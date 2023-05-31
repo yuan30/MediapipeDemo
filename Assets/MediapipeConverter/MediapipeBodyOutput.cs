@@ -209,9 +209,9 @@ public class MediapipeBodyOutput : MediapipeOutput, IBodyOutput
 			UpdateArmData(worldPositions, leftArmBone, LEFT_ARM_CONN_INDICES, LEFT_ARM_ADJUSTED_ROTATION, forward);
 			UpdateArmData(worldPositions, rightArmBone, RIGHT_ARM_CONN_INDICES, RIGHT_ARM_ADJUSTED_ROTATION, forward);
 
-			/*
+			
 			UpdateLegData(worldPositions, leftLegBone, LEFT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION, forward);
-			UpdateLegData(worldPositions, rightLegBone, RIGHT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION, forward);*/
+			UpdateLegData(worldPositions, rightLegBone, RIGHT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION, forward);
 
 			// Test hip
 			// start (right 畫面上的右) and  end (left 畫面上的左) -> get a vector //HIP_CONN_INDEX
@@ -280,7 +280,7 @@ public class MediapipeBodyOutput : MediapipeOutput, IBodyOutput
 		for (int i = 0; i < connIndices.Length; i++)
 		{
 			//Quaternion rotation = i == 0 ? GetRotation(positions, connIndices[i], adjustedRot, upwards): GetRotation(positions, connIndices[i], upwards);
-			Quaternion rotation = GetRotation(positions, connIndices[i], LEG_ADJUSTED_ROTATION, forward);
+			Quaternion rotation = GetRotation(positions, connIndices[i], adjustedRot, forward);
 			Debug.Log("_Test_Leg_" + connIndices[i] + ", " + rotation.eulerAngles);
 			//upwards = rotation * Vector3.up;
 			Filter(bones[i], rotation);
