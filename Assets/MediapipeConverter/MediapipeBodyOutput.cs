@@ -78,8 +78,8 @@ public class MediapipeBodyOutput : MediapipeOutput, IBodyOutput
 	public Vector3[] Positions2D { get; private set; }
 	public Vector3 Hip2D { get; private set; }
 	//public Vector3 hip2D = new Vector3();
-    private Quaternion LEFT_ARM_ADJUSTED_ROTATION = Quaternion.AngleAxis(90, Vector3.up);
-    private Quaternion RIGHT_ARM_ADJUSTED_ROTATION = Quaternion.AngleAxis(-90, Vector3.up);
+    private Quaternion LEFT_ARM_ADJUSTED_ROTATION = Quaternion.AngleAxis(-90, Vector3.up);
+    private Quaternion RIGHT_ARM_ADJUSTED_ROTATION = Quaternion.AngleAxis(90, Vector3.up);
 	//NEW
 	//private Quaternion LEG_ADJUSTED_ROTATION = Quaternion.Euler(90, 0, 0);
 	private Quaternion LEG_ADJUSTED_ROTATION = Quaternion.AngleAxis(90, Vector3.right);
@@ -188,30 +188,38 @@ public class MediapipeBodyOutput : MediapipeOutput, IBodyOutput
 		//var forward = TriangleNormal(_hip2D, positions[LEFT_HIP_INDEX], positions[RIGHT_HIP_INDEX]); // Either 2D or 3D the direction are same.
 		var forward = TriangleNormal(_hip3D, worldPositions[LEFT_HIP_INDEX], worldPositions[RIGHT_HIP_INDEX]);
 		//forward = TriangleNormal(_hip3D, worldPositions[RIGHT_KNEE_INDEX], worldPositions[LEFT_KNEE_INDEX]); //方向相反180度
-		forward = TriangleNormal(_hip3D, worldPositions[LEFT_KNEE_INDEX], worldPositions[RIGHT_KNEE_INDEX]);
+		//forward = TriangleNormal(_hip3D, worldPositions[LEFT_KNEE_INDEX], worldPositions[RIGHT_KNEE_INDEX]);
+		// way 2
+		forward = TriangleNormal(_spine, worldPositions[RIGHT_HIP_INDEX], worldPositions[LEFT_HIP_INDEX]);
+		// way 1
+		//forward = TriangleNormal(_spine, worldPositions[LEFT_HIP_INDEX], worldPositions[RIGHT_HIP_INDEX]);
 		Hip2D = _hip2D;
 		//hip2D = _hip2D;
 		
 		if (isTest2DPose){
-			UpdateArmData(positions, leftArmBone, LEFT_ARM_CONN_INDICES, LEFT_ARM_ADJUSTED_ROTATION);
-			UpdateArmData(positions, rightArmBone, RIGHT_ARM_CONN_INDICES, RIGHT_ARM_ADJUSTED_ROTATION);
+			// UpdateArmData(positions, leftArmBone, LEFT_ARM_CONN_INDICES, LEFT_ARM_ADJUSTED_ROTATION);
+			// UpdateArmData(positions, rightArmBone, RIGHT_ARM_CONN_INDICES, RIGHT_ARM_ADJUSTED_ROTATION);
 
-			UpdateLegData(positions, leftLegBone, LEFT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION);
-			UpdateLegData(positions, rightLegBone, RIGHT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION);
+			// UpdateLegData(positions, leftLegBone, LEFT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION, forward);
+			// UpdateLegData(positions, rightLegBone, RIGHT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION, forward);
 
 			//UpdateTorso(positions, HumanBodyBones.Hips, HIP_CONN_INDEX, HIP_ADJUSTED_ROTATION);
 			//UpdateTorso(positions, HumanBodyBones.Spine, HIP_CONN_INDEX, HIP_ADJUSTED_ROTATION);
 		} else {
-			//UpdateArmData(worldPositions, leftArmBone, LEFT_ARM_CONN_INDICES, LEFT_ARM_ADJUSTED_ROTATION);
-			/*UpdateArmData(worldPositions, rightArmBone, RIGHT_ARM_CONN_INDICES, RIGHT_ARM_ADJUSTED_ROTATION);
+			UpdateArmData(worldPositions, leftArmBone, LEFT_ARM_CONN_INDICES, LEFT_ARM_ADJUSTED_ROTATION, forward);
+			UpdateArmData(worldPositions, rightArmBone, RIGHT_ARM_CONN_INDICES, RIGHT_ARM_ADJUSTED_ROTATION, forward);
 
-			UpdateLegData(worldPositions, leftLegBone, LEFT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION);
-			UpdateLegData(worldPositions, rightLegBone, RIGHT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION);*/
+			/*
+			UpdateLegData(worldPositions, leftLegBone, LEFT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION, forward);
+			UpdateLegData(worldPositions, rightLegBone, RIGHT_LEG_CONN_INDICES, LEG_ADJUSTED_ROTATION, forward);*/
 
 			// Test hip
 			// start (right 畫面上的右) and  end (left 畫面上的左) -> get a vector //HIP_CONN_INDEX
 			UpdateTorso(worldPositions, HumanBodyBones.Hips, HIP_CONN_INDEX, HIP_ADJUSTED_ROTATION, forward);
+			// way 1
 			var spineForward = TriangleNormal(_spine, worldPositions[RIGHT_SHOULDER_INDEX], worldPositions[LEFT_SHOULDER_INDEX]);
+			// way 2
+			spineForward = TriangleNormal(_spine, worldPositions[LEFT_SHOULDER_INDEX], worldPositions[RIGHT_SHOULDER_INDEX]);
 			UpdateTorso(worldPositions, HumanBodyBones.Spine, HIP_CONN_INDEX, HIP_ADJUSTED_ROTATION, spineForward);
 		}
     }
@@ -249,32 +257,32 @@ public class MediapipeBodyOutput : MediapipeOutput, IBodyOutput
 
 	}
 
-    private void UpdateArmData(Vector3[] positions, HumanBodyBones[] bones, int[] connIndices, Quaternion adjustedRot)
+    private void UpdateArmData(Vector3[] positions, HumanBodyBones[] bones, int[] connIndices, Quaternion adjustedRot, Vector3 forward)
     {
 		if (bones.Length != connIndices.Length)
 			throw new System.Exception("body input and output count is different");
 
-		Vector3 upwards = Vector3.up;
+		//Vector3 upwards = Vector3.up;
 		for (int i = 0; i < connIndices.Length; i++)
 		{
-			Quaternion rotation = GetRotation(positions, connIndices[i], adjustedRot, upwards);
-			upwards = rotation * Vector3.up;
+			Quaternion rotation = GetRotation(positions, connIndices[i], adjustedRot, forward);
+			//upwards = rotation * Vector3.up;
 			Filter(bones[i], rotation);
 		}
     }
 
-	private void UpdateLegData(Vector3[] positions, HumanBodyBones[] bones, int[] connIndices, Quaternion adjustedRot)
+	private void UpdateLegData(Vector3[] positions, HumanBodyBones[] bones, int[] connIndices, Quaternion adjustedRot, Vector3 forward)
     {
 		if (bones.Length != connIndices.Length)
 			throw new System.Exception("body input and output count is different");
 
-		Vector3 upwards = Vector3.up;
+		//Vector3 upwards = Vector3.up;
 		for (int i = 0; i < connIndices.Length; i++)
 		{
 			//Quaternion rotation = i == 0 ? GetRotation(positions, connIndices[i], adjustedRot, upwards): GetRotation(positions, connIndices[i], upwards);
-			Quaternion rotation = GetRotation(positions, connIndices[i], adjustedRot, upwards);
+			Quaternion rotation = GetRotation(positions, connIndices[i], LEG_ADJUSTED_ROTATION, forward);
 			Debug.Log("_Test_Leg_" + connIndices[i] + ", " + rotation.eulerAngles);
-			upwards = rotation * Vector3.up;
+			//upwards = rotation * Vector3.up;
 			Filter(bones[i], rotation);
 		}
     }

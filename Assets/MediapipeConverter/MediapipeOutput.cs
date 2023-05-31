@@ -47,7 +47,10 @@ public abstract class MediapipeOutput : MonoBehaviour
     {
 	Vector3 connDir = GetVector(positions, connIndex, IsMirror);
 
+    // way 1
 	Quaternion desiredRotation = Quaternion.LookRotation(connDir, upwards);
+    // way 2
+    //desiredRotation = Quaternion.LookRotation(upwards, connDir);
 	return desiredRotation;
     }
 
@@ -65,6 +68,9 @@ public abstract class MediapipeOutput : MonoBehaviour
         // Debug.Log("_Test_vec_start_point: " + index1 + ", end_point: " + index2);
         // Debug.Log("_Test_vec_start: " + startPos + ", end: " + endPos + "| mirror is " + isMirror);
         // Debug.Log("_Test_vec_: " + (endPos - startPos).normalized);
+        // way 1
+        return (startPos - endPos).normalized;
+        // way 2
         return (endPos - startPos).normalized;
         //return isMirror ? (startPos - endPos).normalized : (endPos - startPos).normalized;
     }

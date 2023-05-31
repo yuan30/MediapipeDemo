@@ -100,12 +100,12 @@ public class BodyAnimator : MonoBehaviour
 
 
 	    //UpdateAnimatorBones(_bodyOutput.BodyRotation, _bodyOutput.Space);
-	    if (_bodyOutput.BodyFollowHead)
+	    /*if (_bodyOutput.BodyFollowHead)
 	    {
 		Transform head = _animator.GetBoneTransform(HumanBodyBones.Head);
 		Transform spine = _animator.GetBoneTransform(HumanBodyBones.Spine);
 		spine.rotation = Quaternion.Slerp(Quaternion.LookRotation(transform.forward), head.rotation, 0.3f);
-	    }
+	    }*/
 	}
 
 	if (_fingerOutput != null)
@@ -193,15 +193,17 @@ public class BodyAnimator : MonoBehaviour
 
 		//new Vector3(boneTransform.position.x, boneTransform.position.y, boneTransform.position.z);
 		//boneTransform.rotation = Quaternion.LookRotation(forward) * inverseRotation;
-		//_animator.GetBoneTransform((HumanBodyBones)handIndex).parent.rotation
+		
+		_Hips = GetLerpValue(_Hips, true);
+		Quaternion resultHandRot = Quaternion.Slerp(_animator.GetBoneTransform(bone).rotation, outputHipRot, _Hips);
 		if (bone == HumanBodyBones.Hips)
 			//_animator.GetBoneTransform(bone).parent.rotation = outputHipRot;
-			boneTransform.rotation = outputHipRot ;
+			boneTransform.rotation = resultHandRot ;
 		else if (bone == HumanBodyBones.Spine) {
 			/*var sf = TriangleNormal(_animator.GetBoneTransform(bone).position, _animator.GetBoneTransform(HumanBodyBones.LeftShoulder).position, 
 						_animator.GetBoneTransform(HumanBodyBones.RightUpperLeg).position);
 			originInverseRotation = */
-			boneTransform.rotation = outputHipRot ;//* originInverseRotation;
+			boneTransform.rotation = resultHandRot ;//* originInverseRotation;
 		}
 		/*if (space == RotateSpace.Local)
 		{
@@ -250,7 +252,7 @@ public class BodyAnimator : MonoBehaviour
 		Quaternion originHandRot = Quaternion.Inverse(_animator.transform.rotation) * _animator.GetBoneTransform(bone).parent.rotation * idleRotation;
 		Quaternion resultHandRot = Quaternion.Slerp(originHandRot, outputHandRot, detectedLerpValue);
 		//Debug.Log("hand"+resultHandRot);
-		UpdateAnimatorBone(bone, resultHandRot, output.Space);
+		UpdateAnimatorBone(bone, outputHandRot, output.Space);
     }
 
 	private void UpdateAnimatorLeg(IBodyOutput output, HumanBodyBones bone, Quaternion idleRotation, float detectedLerpValue)
@@ -263,12 +265,14 @@ public class BodyAnimator : MonoBehaviour
 		// Quaternion avatarRotation = _animator.GetBoneTransform(bone).parent.rotation;
 		// Quaternion boneMappingQuaternion = Quaternion.Inverse(avatarRotation) * characterRotation;
 		// Debug.Log("bonemapping: " + boneMappingQuaternion);
-		Quaternion originHandRot = Quaternion.Inverse(_animator.transform.rotation) * _animator.GetBoneTransform(bone).parent.rotation * idleRotation;
+		Quaternion originHandRot = Quaternion.Inverse(_animator.transform.rotation) * _animator.GetBoneTransform(bone).parent.rotation;// * idleRotation;
 		Quaternion resultHandRot = Quaternion.Slerp(originHandRot, outputHandRot, detectedLerpValue);
 
-		Debug.Log("_Test_Leg_origin" + originHandRot.eulerAngles);
+		//Debug.Log("_Test_Leg_origin" + originHandRot.eulerAngles);
 		Debug.Log("_Test_Leg_output" + outputHandRot.eulerAngles);
-		UpdateAnimatorBone(bone, resultHandRot, output.Space);
+		Debug.Log("_Test_Leg_output" + resultHandRot.eulerAngles);
+		//UpdateAnimatorBone(bone, resultHandRot, output.Space);
+		UpdateAnimatorBone(bone, outputHandRot, output.Space);
 
 	}
 
